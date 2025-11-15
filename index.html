@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Scheduling Algorithm Visualizer</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Process Scheduling Algorithm Visualizer</h1>
+            <h2><i>Jeremy C. Reyes - MIT 501 - Operating System</i></h2>
+            <p class="subtitle">Simulate and visualize different CPU scheduling algorithms</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Process Form Section -->
+            <div class="process-section">
+                <div class="card">
+                    <h2>Add Processes</h2>
+                    
+                    <form id="processForm" class="process-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="processName">Process Name</label>
+                                <input type="text" id="processName" placeholder="P1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="arrivalTime">Arrival Time</label>
+                                <input type="number" id="arrivalTime" min="0" value="0" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="burstTime">Burst Time</label>
+                                <input type="number" id="burstTime" min="1" required>
+                            </div>
+
+                            <div class="form-group" id="priorityGroup" style="display: none;">
+                                <label for="priority">Priority</label>
+                                <input type="number" id="priority" min="0" value="0">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <span class="btn-icon">+</span> Add Process
+                        </button>
+                    </form>
+
+                    <div id="processQueue" style="display: none;">
+                        <h3 class="queue-title">Process Queue (<span id="queueCount">0</span>)</h3>
+                        <div id="processList" class="process-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Algorithm Selector Section -->
+            <div class="algorithm-section">
+                <div class="card">
+                    <h2>Algorithm Settings</h2>
+                    
+                    <div class="algorithm-buttons">
+                        <button class="algo-btn active" data-algorithm="fcfs">
+                            <div class="algo-title">FCFS</div>
+                            <div class="algo-desc">First Come First Serve</div>
+                        </button>
+                        <button class="algo-btn" data-algorithm="sjf">
+                            <div class="algo-title">SJF</div>
+                            <div class="algo-desc">Shortest Job First</div>
+                        </button>
+                        <button class="algo-btn" data-algorithm="roundrobin">
+                            <div class="algo-title">Round Robin</div>
+                            <div class="algo-desc">Time Quantum Based</div>
+                        </button>
+                        <button class="algo-btn" data-algorithm="priority">
+                            <div class="algo-title">Priority</div>
+                            <div class="algo-desc">Priority Based</div>
+                        </button>
+                    </div>
+
+                    <div id="quantumGroup" class="form-group" style="display: none;">
+                        <label for="timeQuantum">Time Quantum</label>
+                        <input type="number" id="timeQuantum" min="1" value="2">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="calculateBtn" class="btn btn-primary btn-full" disabled>
+                            <span class="btn-icon">▶</span> Calculate Schedule
+                        </button>
+                        <button id="clearBtn" class="btn btn-outline btn-full" disabled>
+                            <span class="btn-icon">🗑</span> Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" style="display: none;">
+            <!-- Gantt Chart -->
+            <div class="card">
+                <h2>Gantt Chart</h2>
+                <div class="gantt-container">
+                    <div id="ganttChart" class="gantt-chart"></div>
+                    <div id="ganttTimeline" class="gantt-timeline"></div>
+                </div>
+                <div id="ganttLegend" class="gantt-legend"></div>
+            </div>
+
+            <!-- Results Table -->
+            <div class="card">
+                <h2>Process Scheduling Results</h2>
+                <div class="table-container">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>Process</th>
+                                <th>Arrival Time</th>
+                                <th>Burst Time</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Waiting Time</th>
+                                <th>Turnaround Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card metric-orange">
+                    <div class="metric-icon">⏱</div>
+                    <div class="metric-content">
+                        <p class="metric-label">Average Waiting Time</p>
+                        <p class="metric-value" id="avgWaitingTime">0.00 units</p>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-green">
+                    <div class="metric-icon">⏲</div>
+                    <div class="metric-content">
+                        <p class="metric-label">Average Turnaround Time</p>
+                        <p class="metric-value" id="avgTurnaroundTime">0.00 units</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
