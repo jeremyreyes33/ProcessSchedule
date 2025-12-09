@@ -240,62 +240,59 @@ function calculateSJF(processes) {
 }
 
 function calculateRoundRobin(processes, quantum) {
-    const queue = processes
-        .map(p => ({ process: p, remainingTime: p.burstTime }))
-        .sort((a, b) => a.process.arrivalTime - b.process.arrivalTime);
-    
+    const sorted = [...processes].sort((a, b) => a.arrivalTime - b.arrivalTime);
     const gantt = [];
     const results = [];
+    const readyQueue = [];
+    const remainingTime = new Map(processes.map(p => [p.id, p.burstTime]));
+    const firstStartMap = new Map();
     
     let currentTime = 0;
     let index = 0;
-    const readyQueue = [];
-    const firstStartMap = new Map();
+    let completed = 0;
     
-    while (queue.length > 0 || readyQueue.length > 0) {
-        // Add newly arrived processes
-        while (index < queue.length && queue[index].process.arrivalTime <= currentTime) {
-            readyQueue.push(queue[index]);
+    while (completed < processes.length) {
+        while (index < sorted.length && sorted[index].arrivalTime <= currentTime) {
+            readyQueue.push(sorted[index]);
             index++;
         }
         
         if (readyQueue.length === 0) {
-            if (index < queue.length) {
-                currentTime = queue[index].process.arrivalTime;
-            }
+            currentTime = sorted[index].arrivalTime;
             continue;
         }
         
         const current = readyQueue.shift();
-        const executeTime = Math.min(current.remainingTime, quantum);
+        const remaining = remainingTime.get(current.id);
+        const executeTime = Math.min(remaining, quantum);
         const startTime = currentTime;
         const endTime = startTime + executeTime;
         
-        if (!firstStartMap.has(current.process.id)) {
-            firstStartMap.set(current.process.id, startTime);
+        if (!firstStartMap.has(current.id)) {
+            firstStartMap.set(current.id, startTime);
         }
         
-        gantt.push({ process: current.process, startTime, endTime });
+        gantt.push({ process: current, startTime, endTime });
         
-        current.remainingTime -= executeTime;
+        remainingTime.set(current.id, remaining - executeTime);
         currentTime = endTime;
         
-        // Add newly arrived processes
-        while (index < queue.length && queue[index].process.arrivalTime <= currentTime) {
-            readyQueue.push(queue[index]);
+        while (index < sorted.length && sorted[index].arrivalTime <= currentTime) {
+            readyQueue.push(sorted[index]);
             index++;
         }
         
-        if (current.remainingTime > 0) {
+        if (remainingTime.get(current.id) > 0) {
             readyQueue.push(current);
         } else {
             results.push({
-                process: current.process,
-                startTime: firstStartMap.get(current.process.id),
+                process: current,
+                startTime: firstStartMap.get(current.id),
                 endTime,
-                waitingTime: firstStartMap.get(current.process.id) - current.process.arrivalTime,
-                turnaround: endTime - current.process.arrivalTime
+                waitingTime: firstStartMap.get(current.id) - current.arrivalTime,
+                turnaround: endTime - current.arrivalTime
             });
+            completed++;
         }
     }
     
